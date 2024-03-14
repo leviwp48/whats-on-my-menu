@@ -1,9 +1,26 @@
 # main.py
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from models import FoodItem, User, Menu  # Import the FoodItem model
-from fastapi.middleware.cors import CORSMiddleware
-from data import create_food_item, get_food_items
+from food import create_food_item, get_food_items, get_food_item
+from menu import create_menu
+from user import create_user
+
+
+# curl -X POST -H "Content-Type: application/json" -d '{
+#   "id": "feef3964-f60d-40bf-89fc-5d5f2a23239b",
+#   "user_id": "71a83264-435a-4c10-a967-405bc8d1a55a",
+#   "name": "Spaghetti",
+#   "image_url": "spaghetti2.jpeg",
+#   "ingredients": ["pasta", "tomatoes"],
+#   "notes": "this is my user hehe"
+# }' http://127.0.0.1:8000/foods
+# {"message":"Food item created successfully"}
+
+# the id might change ??? 
+# curl "http://127.0.0.1:8000/foods?userId=71a83264-435a-4c10-a967-405bc8d1a55a"
+
 
 app = FastAPI()
 
@@ -17,14 +34,15 @@ app.add_middleware(
 )
 
 # In-memory data storage for demonstration purposes
-foods_db = []
-
+foods_db = {}
 
 
 @app.get("/")
 async def root():
     x = {
         "name": "test_user".capitalize(),
+        "email": "leviwp48@gmail.com",
+        "hashed_password": "asldfjds",
         "notes": "this is my user hehe"
     }
     user = User(**x)
@@ -37,32 +55,34 @@ async def root():
         "notes": "this is my user hehe"
     }
 
-    foodItem = FoodItem(**y)
+    food_item = FoodItem(**y)
 
-    updated_user = user.copy(update={"food_list": foodItem})
+    updated_user = user.copy(update={"food_list": food_item})
 
     print(user)
-    print(foodItem)
+    print(food_item)
     print(updated_user)
     return updated_user
 
+# User
+
+# Food
 
 @app.post("/foods")
-async def create_food(foodItem: FoodItem):
-    print('hrereere')
-    create_food_item(foodItem.user_id, foodItem.name, foodItem.image_url, foodItem.ingredients, foodItem.notes, foods_db)
+async def create_food(food_item: FoodItem):
+    create_food_item(food_item.user_id, food_item.name, food_item.image_url, food_item.ingredients, food_item.notes, foods_db)
+    print('food list: ', foods_db)
     return {"message": "Food item created successfully"}
 
 
 @app.get("/foods")
-async def get_food_items():
-    return get_food_items()
+async def retrieve_food_items(user_id: str):
+    return get_food_items(user_id, foods_db)
 
 
 @app.get("/foods/{food_id}")
-async def get_food_item(food_id: int):
-    try:
-        return foods_db[food_id]
-    except IndexError:
-        raise HTTPException(status_code=404, detail="Food item not found")
+async def retrieve_food_item(user_id: int, food_name: str):
+    return get_food_item(user_id, food_name, foods_db)
 
+
+# Menu
