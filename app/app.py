@@ -8,6 +8,10 @@ from menu import create_menu
 from user import create_user
 
 
+## GET request 
+# curl "http://127.0.0.1:80"
+
+## POST request 
 # curl -X POST -H "Content-Type: application/json" -d '{
 #   "id": "feef3964-f60d-40bf-89fc-5d5f2a23239b",
 #   "user_id": "71a83264-435a-4c10-a967-405bc8d1a55a",
@@ -15,10 +19,10 @@ from user import create_user
 #   "image_url": "spaghetti2.jpeg",
 #   "ingredients": ["pasta", "tomatoes"],
 #   "notes": "this is my user hehe"
-# }' http://127.0.0.1:8000/foods
+# }' http://127.0.0.1:80/foods
 # {"message":"Food item created successfully"}
 
-# the id might change ??? 
+## the id might change ??? 
 # curl "http://127.0.0.1:8000/foods?userId=71a83264-435a-4c10-a967-405bc8d1a55a"
 
 
@@ -66,20 +70,21 @@ async def root():
 
 # User
 
-# Food
+## Food
 
+# create a food
 @app.post("/foods")
 async def create_food(food_item: FoodItem):
     create_food_item(food_item.user_id, food_item.name, food_item.image_url, food_item.ingredients, food_item.notes, foods_db)
     print('food list: ', foods_db)
     return {"message": "Food item created successfully"}
 
-
+# get a list of all food items
 @app.get("/foods")
 async def retrieve_food_items(user_id: str):
     return get_food_items(user_id, foods_db)
 
-
+# get a single food item by name 
 @app.get("/foods/{food_id}")
 async def retrieve_food_item(user_id: int, food_name: str):
     return get_food_item(user_id, food_name, foods_db)

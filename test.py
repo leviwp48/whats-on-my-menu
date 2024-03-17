@@ -1,7 +1,7 @@
 import requests
 
 # Assuming your FastAPI server is running on http://localhost:8000
-base_url = "http://localhost:8001"
+base_url = "http://localhost:80"
 
 # Data for creating a new food item
 new_food_item_data = {
